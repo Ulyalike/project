@@ -1,0 +1,23 @@
+name: Database Migrations
+on: [push]
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Flyway migrations
+        uses: docker://flyway/flyway
+        with:
+          args: >-
+            -url=jdbc:postgresql://localhost:5432/postgres 
+            -user=postgres 
+            -password=postgres 
+            -locations=filesystem:./infrastructure/migrations 
+            migrate
