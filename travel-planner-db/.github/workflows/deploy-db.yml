@@ -1,0 +1,24 @@
+name: Deploy PostgreSQL Database
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: travel_planner
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v2
+      - name: Execute SQL scripts
+        run: |
+          psql -h localhost -U test -d travel_planner -f sql/schema.sql
+          psql -h localhost -U test -d travel_planner -f sql/data.sql
