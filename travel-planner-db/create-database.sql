@@ -1,0 +1,65 @@
+CREATE DATABASE IF NOT EXISTS TravelService
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'travel_user'@'localhost' IDENTIFIED BY 'secure_password';
+
+GRANT ALL PRIVILEGES ON TravelService.* TO 'travel_user'@'localhost';
+
+FLUSH PRIVILEGES;
+
+USE TravelService;
+
+CREATE TABLE IF NOT EXISTS Users (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Trips (
+    id UUID PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    created_by UUID,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES Users(id)
+);
+
+CREATE TABLE IF NOT EXISTS Participants (
+    id UUID PRIMARY KEY,
+    user_id UUID,
+    trip_id UUID,
+    role VARCHAR(50),
+    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id),
+    FOREIGN KEY (trip_id) REFERENCES Trips(id)
+);
+
+CREATE TABLE IF NOT EXISTS Itineraries (
+    id UUID PRIMARY KEY,
+    trip_id UUID,
+    day INT NOT NULL,
+    activity VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    start_time TIME,
+    end_time TIME,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (trip_id) REFERENCES Trips(id)
+);
+
+CREATE TABLE IF NOT EXISTS Messages (
+    id UUID PRIMARY KEY,
+    trip_id UUID,
+    user_id UUID,
+    content TEXT NOT NULL,
+    sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trip_id) REFERENCES Trips(id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+);
